@@ -1,0 +1,51 @@
+import java.util.*;
+
+public class SlidingWindowGBN {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter total number of frames: ");
+        int totalFrames = sc.nextInt();
+
+        System.out.print("Enter window size: ");
+        int windowSize = sc.nextInt();
+
+        int currentFrame = 0;
+        Random rand = new Random();
+
+        while (currentFrame < totalFrames) {
+
+            int lastFrame = Math.min(currentFrame + windowSize, totalFrames);
+
+            System.out.println("\nSending frames:");
+            for (int i = currentFrame; i < lastFrame; i++) {
+                System.out.print(i + " ");
+            }
+
+            System.out.println("\n\nReceiving ACKs:");
+            boolean timeout = false;
+
+            for (int i = currentFrame; i < lastFrame; i++) {
+
+                // Randomly drop ACK with 20% loss
+                if (rand.nextInt(10) < 2) {
+                    System.out.println("ACK for frame " + i + " LOST!");
+                    timeout = true;
+                    break;
+                } else {
+                    System.out.println("ACK received for frame " + i);
+                }
+            }
+
+            if (timeout) {
+                System.out.println("\nTimeout occurred! Resending window from frame " + currentFrame);
+                // Do NOT move the window → Go-Back-N resends all
+            } else {
+                currentFrame = lastFrame;  // shift the window forward
+            }
+        }
+
+        System.out.println("\nAll frames transmitted successfully!");
+    }
+}
