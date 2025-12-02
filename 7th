@@ -1,0 +1,45 @@
+import java.net.*;
+import java.io.*;
+
+public class TCPS {
+    public static void main(String[] args) throws Exception {
+
+        // Create server socket
+        ServerSocket sersock = new ServerSocket(4000);
+        System.out.println("Server ready for connection...");
+
+        // Wait for client
+        Socket sock = sersock.accept();
+        System.out.println("Client connected. Waiting for filename...");
+
+        // Read filename sent by client
+        BufferedReader fileRead = new BufferedReader(
+                new InputStreamReader(sock.getInputStream()));
+        String fname = fileRead.readLine();
+
+        // Open requested file
+        BufferedReader contentRead = null;
+        OutputStream ostream = sock.getOutputStream();
+        PrintWriter pwrite = new PrintWriter(ostream, true);
+
+        try {
+            String str;
+            contentRead = new BufferedReader(new FileReader(fname));
+
+            // Send file contents line by line
+            while ((str = contentRead.readLine()) != null) {
+                pwrite.println(str);
+            }
+        } catch (FileNotFoundException e) {
+            pwrite.println("Error: File Not Found!");
+        }
+
+        // Close connections
+        pwrite.close();
+        fileRead.close();
+        if (contentRead != null)
+            contentRead.close();
+        sock.close();
+        sersock.close();
+    }
+}
